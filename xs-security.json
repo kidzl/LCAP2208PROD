@@ -1,0 +1,27 @@
+{
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.PersonalDataManager",
+      "description": "PersonalDataManager",
+      "grant-as-authority-to-apps": [
+        "$XSSERVICENAME(CrystalPDMTest-pdm)"
+      ]
+    }
+  ],
+  "attributes": [],
+  "role-templates": [
+    {
+      "name": "PersonalDataManager",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.PersonalDataManager"
+      ],
+      "attribute-references": []
+    }
+  ],
+  "xsappname": "CrystalPDMTest",
+  "tenant-mode": "dedicated",
+  "authorities": [
+    "$XSAPPNAME.PersonalDataManager"
+  ]
+}

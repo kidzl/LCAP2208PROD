@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+    <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="CrystalPDMTestService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityContainer Name="EntityContainer">
+        <EntitySet Name="students" EntityType="CrystalPDMTestService.students">
+          <NavigationPropertyBinding Path="teachers" Target="teachers"/>
+        </EntitySet>
+        <EntitySet Name="teachers" EntityType="CrystalPDMTestService.teachers">
+          <NavigationPropertyBinding Path="students" Target="students"/>
+        </EntitySet>
+      </EntityContainer>
+      <EntityType Name="students">
+        <Key>
+          <PropertyRef Name="studentsID"/>
+        </Key>
+        <Property Name="studentsID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="firstname" Type="Edm.String" MaxLength="100"/>
+        <Property Name="lastname" Type="Edm.String" MaxLength="100"/>
+        <Property Name="age" Type="Edm.Int32"/>
+        <Property Name="email" Type="Edm.String" MaxLength="100"/>
+        <Property Name="address" Type="Edm.String" MaxLength="100"/>
+        <Property Name="birthday" Type="Edm.Date"/>
+        <Property Name="sex" Type="Edm.Boolean"/>
+        <Property Name="tel" Type="Edm.String" MaxLength="100"/>
+        <Property Name="mobile" Type="Edm.String" MaxLength="100"/>
+        <NavigationProperty Name="teachers" Type="CrystalPDMTestService.teachers" Partner="students">
+          <ReferentialConstraint Property="teachers_teacherID" ReferencedProperty="teacherID"/>
+        </NavigationProperty>
+        <Property Name="teachers_teacherID" Type="Edm.Guid"/>
+      </EntityType>
+      <EntityType Name="teachers">
+        <Key>
+          <PropertyRef Name="teacherID"/>
+        </Key>
+        <Property Name="teacherID" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="firstname" Type="Edm.String" MaxLength="100"/>
+        <Property Name="lastname" Type="Edm.String" MaxLength="100"/>
+        <Property Name="email" Type="Edm.String" MaxLength="100"/>
+        <Property Name="birthday" Type="Edm.Date"/>
+        <Property Name="sex" Type="Edm.Boolean"/>
+        <Property Name="address" Type="Edm.String" MaxLength="100"/>
+        <Property Name="age" Type="Edm.Int32"/>
+        <NavigationProperty Name="students" Type="Collection(CrystalPDMTestService.students)" Partner="teachers"/>
+      </EntityType>
+      <Annotations Target="CrystalPDMTestService.teachers/teacherID">
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

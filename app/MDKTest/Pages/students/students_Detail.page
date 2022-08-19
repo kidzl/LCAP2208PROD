@@ -1,0 +1,84 @@
+{
+	"Caption": "students",
+	"ActionBar": {
+		"Items": []
+	},
+	"Controls": [
+		{
+			"Sections": [
+				{
+					"ObjectHeader": {
+						"DetailImage": "",
+						"HeadlineText": "{firstname}",
+						"Subhead": "{studentsID}",
+						"Tags": [],
+						"BodyText": "",
+						"Footnote": "{age}",
+						"Description": "{lastname}",
+						"StatusText": "{email}",
+						"StatusImage": "",
+						"SubstatusImage": "",
+						"SubstatusText": "{address}"
+					},
+					"_Type": "Section.Type.ObjectHeader"
+				},
+				{
+					"KeyAndValues": [
+						{
+							"KeyName": "studentsID",
+							"Value": "{studentsID}"
+						},
+						{
+							"KeyName": "firstname",
+							"Value": "{firstname}"
+						},
+						{
+							"KeyName": "lastname",
+							"Value": "{lastname}"
+						},
+						{
+							"KeyName": "age",
+							"Value": "{age}"
+						},
+						{
+							"KeyName": "email",
+							"Value": "{email}"
+						},
+						{
+							"KeyName": "address",
+							"Value": "{address}"
+						},
+						{
+							"KeyName": "birthday",
+							"Value": "{birthday}"
+						},
+						{
+							"KeyName": "sex",
+							"Value": "{sex}"
+						},
+						{
+							"KeyName": "tel",
+							"Value": "{tel}"
+						},
+						{
+							"KeyName": "mobile",
+							"Value": "{mobile}"
+						}
+					],
+					"Layout": {
+						"NumberOfColumns": 2
+					},
+					"MaxItemCount": 1,
+					"_Name": "SectionKeyValue0",
+					"_Type": "Section.Type.KeyValue"
+				}
+			],
+			"DataSubscriptions": [],
+			"_Type": "Control.Type.SectionedTable",
+			"_Name": "SectionedTable"
+		}
+	],
+	"_Type": "Page",
+	"_Name": "students_Detail",
+	"PrefersLargeCaption": true
+}

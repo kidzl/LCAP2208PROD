@@ -1,0 +1,230 @@
+_schema-version: '3.1'
+ID: CrystalPDMTest
+version: 1.0.0
+description: A simple CAP project.
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - rm -rf build/ui-deployer
+        - mkdir -p build/ui-deployer
+        - rm -rf build/dist
+        - mkdir -p build/dist
+    - builder: custom
+      commands:
+        - npm install --production
+        - >-
+          bash -c "cds -v | grep 'cds-dk' || npm i --production --no-save
+          @sap/cds-dk @sap/mdk-tools"
+        - bash -c "export PATH=$PATH:$(pwd)/node_modules/.bin"
+        - cds build --production
+modules:
+  - name: CrystalPDMTest-MDKTest
+    type: html5
+    path: app/MDKTest
+    build-parameters:
+      builder: custom
+      commands:
+        - mdk build --target module --ui5 --forceUpdate
+        - bash -c "cd Web/MDKModule && rm -rf .npmrc && npm install"
+        - bash -c "cd Web/MDKModule && npm run build"
+        - >-
+          bash -c "mv Web/MDKModule/MDKModule-content.zip
+          ../../build/dist/MDKTest.zip"
+        - rm -rf Web/MDKModule/dist
+      _artifactName: MDKTest.zip
+      supported-platforms: []
+      build-result: ../../build/dist
+  - name: CrystalPDMTest-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+    build-parameters:
+      builder: npm
+      ignore:
+        - node_modules
+        - package-lock.json
+    requires:
+      - name: CrystalPDMTest-service-uaa
+      - name: CrystalPDMTest-service-db
+  - name: CrystalPDMTest-srv
+    type: nodejs
+    path: gen/srv
+    parameters:
+      memory: 256MB
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    build-parameters:
+      builder: npm
+      ignore:
+        - node_modules
+        - package-lock.json
+    requires:
+      - name: CrystalPDMTest-service-uaa
+      - name: CrystalPDMTest-service-db
+      - name: CrystalPDMTest-service-destination
+      - name: CrystalPDMTest-service-metadata
+      - name: CrystalPDMTest-service-connectivity
+      - name: CrystalPDMTest-service-logs
+      - name: CrystalPDMTest-service-pdm
+        parameters:
+          config:
+            fullyQualifiedApplicationName: CrystalPDMTest-${space}-${org}
+            fullyQualifiedModuleName: CrystalPDMTest-${space}-${org}
+            applicationTitle: CrystalPDMTest for LCAP
+            applicationTitleKey: CrystalPDMTest for LCAP
+            applicationURL: ${default-url}
+            endPoints:
+              - type: odatav4
+                serviceName: CrystalPDMTest-pdm
+                serviceTitle: OData service for Personal Data Manager
+                serviceTitleKey: OData service for Personal Data Manager
+                serviceURI: /service/pdm
+                hasGdprV4Annotations: true
+                cacheControl: no-cache
+  - name: CrystalPDMTest-aux-destinations
+    type: com.sap.application.content
+    parameters:
+      content:
+        subaccount:
+          existing_destinations_policy: update
+          destinations:
+            - Authentication: OAuth2UserTokenExchange
+              Name: CrystalPDMTest-service-uaa
+              ServiceInstanceName: CrystalPDMTest-uaa
+              ServiceKeyName: CrystalPDMTest-uaa-key
+              sap.cloud.service: lcap.CrystalPDMTest
+            - Authentication: OAuth2UserTokenExchange
+              Name: CrystalPDMTest-app-srv
+              TokenServiceInstanceName: CrystalPDMTest-uaa
+              TokenServiceKeyName: CrystalPDMTest-uaa-key
+              URL: ~{srv-api/srv-url}
+              sap.cloud.service: lcap.CrystalPDMTest
+            - Name: CrystalPDMTest-service-html5-apps-repo-host
+              ServiceInstanceName: CrystalPDMTest-html5-apps-repo-host
+              ServiceKeyName: CrystalPDMTest-html5-apps-repo-host-key
+              sap.cloud.service: lcap.CrystalPDMTest
+    build-parameters:
+      no-source: true
+    requires:
+      - name: CrystalPDMTest-service-uaa
+        parameters:
+          service-key:
+            name: CrystalPDMTest-uaa-key
+      - name: srv-api
+      - name: CrystalPDMTest-service-html5-apps-repo-host
+        parameters:
+          service-key:
+            name: CrystalPDMTest-html5-apps-repo-host-key
+      - name: CrystalPDMTest-service-destination
+        parameters:
+          content-target: true
+  - name: CrystalPDMTest-launchpad
+    type: html5
+    path: build/launchpad
+    build-parameters:
+      builder: custom
+      commands:
+        - npm install
+        - >-
+          npx -p @ui5/cli ui5 build --dest dist
+          --include-task=generateManifestBundle
+          --include-task=generateCachebusterInfo
+        - bash -c "cd dist && npx bestzip ../../../build/dist/launchpad.zip *"
+        - rm -rf dist
+      _artifactName: launchpad.zip
+      supported-platforms: []
+      build-result: ../../build/dist
+  - name: CrystalPDMTest-aux-ui-deployer
+    type: com.sap.application.content
+    path: build/ui-deployer
+    build-parameters:
+      build-result: resources
+      requires:
+        - name: CrystalPDMTest-MDKTest
+          artifacts:
+            - MDKTest.zip
+          target-path: resources
+        - name: CrystalPDMTest-launchpad
+          artifacts:
+            - launchpad.zip
+          target-path: resources
+    requires:
+      - name: CrystalPDMTest-service-html5-apps-repo-host
+        parameters:
+          content-target: true
+resources:
+  - type: org.cloudfoundry.managed-service
+    name: CrystalPDMTest-service-uaa
+    parameters:
+      service: xsuaa
+      service-plan: application
+      service-name: CrystalPDMTest-uaa
+      path: xs-security.json
+      config:
+        xsappname: CrystalPDMTest-${space}
+        role-collections:
+          - description: PersonalDataManager
+            name: CrystalPDMTest-PersonalDataManager-${space}
+            role-template-references:
+              - $XSAPPNAME.PersonalDataManager
+  - type: org.cloudfoundry.managed-service
+    name: CrystalPDMTest-service-db
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+      service-name: CrystalPDMTest-db
+  - type: org.cloudfoundry.managed-service
+    name: CrystalPDMTest-service-destination
+    parameters:
+      service: destination
+      service-plan: lite
+      service-name: CrystalPDMTest-destination
+      config:
+        HTML5Runtime_enabled: true
+        version: 1.0.0
+  - type: org.cloudfoundry.user-provided-service
+    name: CrystalPDMTest-service-metadata
+    parameters:
+      service: metadata
+      service-plan: standard
+      service-name: CrystalPDMTest-metadata
+      config:
+        default-domain: ${default-domain}
+  - type: org.cloudfoundry.managed-service
+    name: CrystalPDMTest-service-connectivity
+    parameters:
+      service: connectivity
+      service-plan: lite
+      service-name: CrystalPDMTest-connectivity
+  - type: org.cloudfoundry.managed-service
+    name: CrystalPDMTest-service-logs
+    parameters:
+      service: application-logs
+      service-plan: lite
+      service-name: CrystalPDMTest-logs
+  - type: org.cloudfoundry.managed-service
+    name: CrystalPDMTest-service-pdm
+    parameters:
+      service: personal-data-manager-service
+      service-plan: standard
+      service-name: CrystalPDMTest-pdm
+      config:
+        xs-security:
+          xsappname: CrystalPDMTest-${space}
+          authorities:
+            - $ACCEPT_GRANTED_AUTHORITIES
+        fullyQualifiedApplicationName: CrystalPDMTest-${space}-${org}
+        appConsentServiceEnabled: true
+  - type: org.cloudfoundry.managed-service
+    name: CrystalPDMTest-service-html5-apps-repo-host
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+      service-name: CrystalPDMTest-html5-apps-repo-host

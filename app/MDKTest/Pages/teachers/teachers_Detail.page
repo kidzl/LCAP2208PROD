@@ -1,0 +1,99 @@
+{
+	"Caption": "teachers",
+	"ActionBar": {
+		"Items": []
+	},
+	"Controls": [
+		{
+			"Sections": [
+				{
+					"ObjectHeader": {
+						"DetailImage": "",
+						"HeadlineText": "{firstname}",
+						"Subhead": "{lastname}",
+						"Tags": [],
+						"BodyText": "",
+						"Footnote": "{birthday}",
+						"Description": "{email}",
+						"StatusText": "{sex}",
+						"StatusImage": "",
+						"SubstatusImage": "",
+						"SubstatusText": "{address}"
+					},
+					"_Type": "Section.Type.ObjectHeader"
+				},
+				{
+					"KeyAndValues": [
+						{
+							"KeyName": "firstname",
+							"Value": "{firstname}"
+						},
+						{
+							"KeyName": "lastname",
+							"Value": "{lastname}"
+						},
+						{
+							"KeyName": "email",
+							"Value": "{email}"
+						},
+						{
+							"KeyName": "birthday",
+							"Value": "{birthday}"
+						},
+						{
+							"KeyName": "sex",
+							"Value": "{sex}"
+						},
+						{
+							"KeyName": "address",
+							"Value": "{address}"
+						},
+						{
+							"KeyName": "age",
+							"Value": "{age}"
+						}
+					],
+					"Layout": {
+						"NumberOfColumns": 2
+					},
+					"MaxItemCount": 1,
+					"_Name": "SectionKeyValue0",
+					"_Type": "Section.Type.KeyValue"
+				},
+				{
+					"Header": {
+						"Caption": "students"
+					},
+					"ObjectCell": {
+						"AccessoryType": "disclosureIndicator",
+						"Description": "{lastname}",
+						"DetailImage": "",
+						"DetailImageIsCircular": false,
+						"Icons": [],
+						"StatusImage": "",
+						"Title": "{firstname}",
+						"Footnote": "{age}",
+						"PreserveIconStackSpacing": false,
+						"StatusText": "{email}",
+						"Subhead": "{studentsID}",
+						"SubstatusText": "{address}",
+						"OnPress": "/MDKTest/Actions/students/NavTostudents_Detail.action"
+					},
+					"Target": {
+						"EntitySet": "{#Property:@odata.readLink}/students",
+						"Service": "/MDKTest/Services/service1.service"
+					},
+					"_Type": "Section.Type.ObjectTable"
+				}
+			],
+			"DataSubscriptions": [
+				"students"
+			],
+			"_Type": "Control.Type.SectionedTable",
+			"_Name": "SectionedTable"
+		}
+	],
+	"_Type": "Page",
+	"_Name": "teachers_Detail",
+	"PrefersLargeCaption": true
+}
